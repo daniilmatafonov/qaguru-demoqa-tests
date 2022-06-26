@@ -1,7 +1,7 @@
 import pytest
 from selene.support.shared import browser
 
-url = 'https://demoqa.com'
+url = 'https://demoqa.com/automation-practice-form'
 name = 'chrome'
 width = '1360'
 height = '768'
