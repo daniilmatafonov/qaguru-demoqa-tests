@@ -26,9 +26,8 @@ def test_submit_form(init):
     browser.element('#userEmail').should(be.blank).type(email)
     browser.element(by.text(gender)).click()
     browser.element('#userNumber').should(be.blank).type(mobileNumber)
-    for value in subjects:
-        browser.element('#subjectsInput').click()
-        browser.element('#subjectsInput').type(value).press_enter()
+    browser.element('#subjectsInput').click().send_keys(subjects[0]).press_enter()
+    browser.element('#subjectsInput').click().send_keys(subjects[1]).press_enter()
     browser.element(by.text(hobbies)).click()
     browser.element("#uploadPicture").send_keys(os.path.abspath(f'../images/fry.jpeg'))
     browser.element('#currentAddress').should(be.blank).type(currentAddress)
