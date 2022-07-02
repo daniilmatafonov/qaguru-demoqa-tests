@@ -1,6 +1,6 @@
 import os
 
-from selene import be, by, have
+from selene import be, by, have, command
 from selene.support.shared import browser
 
 firstName = "Daniil"
@@ -10,7 +10,7 @@ gender = "Male"
 mobileNumber = "1234567890"
 birthDay = "9"
 birthMonth = "06"
-birthMonthStr = "June"
+birthMonthStr = "9"
 birthYear = "1981"
 subjects = ["Computer Science", "English"]
 hobbies = "Reading"
@@ -26,6 +26,10 @@ def test_submit_form(init):
     browser.element('#userEmail').should(be.blank).type(email)
     browser.element(by.text(gender)).click()
     browser.element('#userNumber').should(be.blank).type(mobileNumber)
+    browser.element('#dateOfBirthInput').perform(command.js.scroll_into_view).click()
+    browser.element('[value="%s"]' % birthYear).click()
+    browser.element('[value="6"]').click()
+    browser.element('div[aria-label="Choose Saturday, August 1st, %s"]' % birthYear).click()
     browser.element('#subjectsInput').click().send_keys(subjects[0]).press_enter()
     browser.element('#subjectsInput').click().send_keys(subjects[1]).press_enter()
     browser.element(by.text(hobbies)).click()
@@ -51,6 +55,7 @@ def check_table():
     tr.element(2).should(have.text(email))
     tr.element(3).should(have.text(gender))
     tr.element(4).should(have.text(mobileNumber))
+    tr.element(5).should(have.text("1 August,%s" % birthYear))
     tr.element(6).should(have.text(subjects[0]))
     tr.element(6).should(have.text(subjects[1]))
     tr.element(7).should(have.text(hobbies))
