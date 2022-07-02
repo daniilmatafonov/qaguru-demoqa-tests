@@ -1,3 +1,5 @@
+import os
+
 from selene import be, by, have
 from selene.support.shared import browser
 
@@ -28,7 +30,7 @@ def test_submit_form(init):
         browser.element('#subjectsInput').click()
         browser.element('#subjectsInput').type(value).press_enter()
     browser.element(by.text(hobbies)).click()
-#    browser.element('#uploadPicture').click()
+    browser.element("#uploadPicture").send_keys(os.path.abspath(f'../images/fry.jpeg'))
     browser.element('#currentAddress').should(be.blank).type(currentAddress)
     browser.element('#state input').type(state).press_tab()
     browser.element('#city input').type(city).press_tab()
