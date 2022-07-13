@@ -59,7 +59,7 @@ def check_table():
     tr.element(6).should(have.text(subjects[0]))
     tr.element(6).should(have.text(subjects[1]))
     tr.element(7).should(have.text(hobbies))
-    tr.element(8).should(have.text(""))
+    tr.element(8).should(have.text("Picture fry.jpeg"))
     tr.element(9).should(have.text(currentAddress))
     tr.element(10).should(have.text(state))
     tr.element(10).should(have.text(city))
