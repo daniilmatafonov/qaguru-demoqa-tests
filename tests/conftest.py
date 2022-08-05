@@ -1,3 +1,5 @@
+import time
+
 import pytest
 from selene.support.shared import browser
 
@@ -18,3 +20,4 @@ def config():
 @pytest.fixture
 def init():
     browser.open(url)
+    time.sleep(1)

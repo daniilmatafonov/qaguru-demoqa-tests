@@ -4,7 +4,7 @@ from selene.support.shared import browser
 from model.ui_controls.checkbox import select_hobby
 from model.ui_controls.datepicker import DatePicker
 from model.ui_controls.dropdown import Dropdown
-from model.ui_controls.resulttable import ResultTable
+from model.ui_controls.result_table import ResultTable
 from model.ui_controls.tags_input import TagsInput
 from model.helpers.utils import Months, get_abspath
 
