@@ -1,7 +1,21 @@
-import time
+import os
 
 import pytest
+from dotenv import load_dotenv
+from selene import Browser, Config
+from selene.support import webdriver
 from selene.support.shared import browser
+from selenium.webdriver.chrome.options import Options
+from utils import attachments
+
+DEFAULT_BROWSER_VERSION = "100.0"
+
+
+def pytest_addoption(parser):
+    parser.addoption(
+        '--browser_version',
+        default='100.0'
+    )
 
 url = 'https://demoqa.com/automation-practice-form'
 name = 'chrome'
@@ -11,13 +25,41 @@ height = '768'
 
 @pytest.fixture(scope='session', autouse=True)
 def config():
+    load_dotenv()
     browser.config.base_url = url
     browser.config.browser_name=name
     browser.config.window_width = width
     browser.config.window_height = height
 
 
-@pytest.fixture
-def init():
-    browser.open(url)
-    time.sleep(1)
+@pytest.fixture(scope='function')
+def init(request):
+    browser_version = request.config.getoption('--browser_version')
+    browser_version = browser_version if browser_version != "" else DEFAULT_BROWSER_VERSION
+    options = Options()
+    selenoid_capabilities = {
+        "browserName": "chrome",
+        "browserVersion": browser_version,
+        "selenoid:options": {
+            "enableVNC": True,
+            "enableVideo": True
+        }
+    }
+    options.capabilities.update(selenoid_capabilities)
+
+    login = os.getenv('LOGIN')
+    password = os.getenv('PASSWORD')
+
+    driver = webdriver.Remote(
+        command_executor=f"https://{login}:{password}@selenoid.autotests.cloud/wd/hub",
+        options=options
+    )
+    browser = Browser(Config(driver))
+
+    yield browser
+
+    attachments.add_html(browser)
+    attachments.add_screenshot(browser)
+    attachments.add_logs(browser)
+    attachments.add_video(browser)
+    browser.quit()

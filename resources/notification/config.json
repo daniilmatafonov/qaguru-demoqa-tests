@@ -1,0 +1,11 @@
+{
+    "base": {
+        "project": "qaguru python",
+        "environment": "prod",
+        "comment": "",
+        "reportLink": "https://jenkins.autotests.cloud/job/C01-daniil-matafonov-python-jenkins/",
+        "language": "en",
+        "allureFolder": "allure-report",
+        "enableChart": true
+    }
+}

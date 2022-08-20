@@ -1,5 +1,6 @@
 from model.helpers import app
 from model.user import User
+from utils.attachments import add_screenshot, add_logs, add_html, add_video
 
 user = User(
     first_name='Daniil',
@@ -18,6 +19,8 @@ user = User(
 
 
 def test_submit_form(init):
+    browser = init
+    browser.open('https://demoqa.com/automation-practice-form')
     app.form.set_first_name(user.first_name)
     app.form.set_last_name(user.last_name)
     app.form.set_email(user.email)
@@ -32,6 +35,7 @@ def test_submit_form(init):
     app.form.set_state(user.state)
     app.form.set_city(user.city)
     app.form.submit()
+    add_screenshot(browser)
     app.result.verify_sent_data(user.full_name(user.first_name, user.last_name),
                                 user.email,
                                 user.gender,
@@ -42,3 +46,6 @@ def test_submit_form(init):
                                 user.photo,
                                 user.current_address,
                                 user.state_and_city(user.state, user.city))
+    add_logs(browser)
+    add_html(browser)
+    add_video('Video steps of test')
