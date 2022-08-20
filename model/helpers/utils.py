@@ -1,6 +1,7 @@
 from enum import Enum
+from pathlib import Path
 
-import os
+import tests
 
 
 class Months(Enum):
@@ -18,6 +19,14 @@ class Months(Enum):
     Dec = 11
 
 
-def get_abspath(path):
-    file_path = str(os.path.abspath(f'../images/{path}'))
-    return os.path.abspath(file_path)
+def get_resources(relative_path):
+    return (
+        Path(tests.__file__)
+        .parent
+        .parent
+        .joinpath('resources/')
+        .joinpath(relative_path)
+        .absolute()
+        .__str__()
+    )
+

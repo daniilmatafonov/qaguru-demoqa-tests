@@ -1,65 +1,73 @@
+"""
+Setup test configurations
+"""
 import os
+import time
 
+import allure
 import pytest
 from dotenv import load_dotenv
-from selene import Browser, Config
-from selene.support import webdriver
+from selene import have, command
 from selene.support.shared import browser
-from selenium.webdriver.chrome.options import Options
-from utils import attachments
+from selenium import webdriver
 
-DEFAULT_BROWSER_VERSION = "100.0"
-
-
-def pytest_addoption(parser):
-    parser.addoption(
-        '--browser_version',
-        default='100.0'
-    )
-
-url = 'https://demoqa.com/automation-practice-form'
-name = 'chrome'
-width = '1360'
-height = '768'
+DEFAULT_BROWSER='chrome'
+DEFAULT_REMOTE_DRIVER = 'selenoid.autotests.cloud'
+DEFAULT_BROWSER_VERSION = '100.0'
+BASE_BROWSER_TIMEOUT=10
+SELENE_TIMEOUT=3
 
 
 @pytest.fixture(scope='session', autouse=True)
-def config():
+def load_env():
+    """
+    Load .env
+    """
     load_dotenv()
-    browser.config.base_url = url
-    browser.config.browser_name=name
-    browser.config.window_width = width
-    browser.config.window_height = height
 
 
-@pytest.fixture(scope='function')
+def pytest_addoption(parser):
+    """
+    Parser option
+    """
+    parser.addoption(
+        '--remote_driver',
+        default=DEFAULT_REMOTE_DRIVER
+    )
+
+
+@pytest.fixture(scope='function', autouse=True)
+@allure.step('Set up browser url, browser type')
 def init(request):
-    browser_version = request.config.getoption('--browser_version')
-    browser_version = browser_version if browser_version != "" else DEFAULT_BROWSER_VERSION
-    options = Options()
-    selenoid_capabilities = {
-        "browserName": "chrome",
-        "browserVersion": browser_version,
+    remote_driver = request.config.getoption('--remote_driver')
+    remote_driver = remote_driver if remote_driver != "" else DEFAULT_REMOTE_DRIVER
+    capabilities = {
+        "browserName": DEFAULT_BROWSER,
+        "browserVersion": DEFAULT_BROWSER_VERSION,
         "selenoid:options": {
             "enableVNC": True,
             "enableVideo": True
         }
     }
-    options.capabilities.update(selenoid_capabilities)
+    selenoid = f"https://{os.getenv('LOGIN')}:{os.getenv('PASSWORD')}@{remote_driver}/wd/hub"
+    browser.config.driver = webdriver.Remote(
+        command_executor=selenoid,
+        desired_capabilities=capabilities)
 
-    login = os.getenv('LOGIN')
-    password = os.getenv('PASSWORD')
-
-    driver = webdriver.Remote(
-        command_executor=f"https://{login}:{password}@selenoid.autotests.cloud/wd/hub",
-        options=options
+    browser.config.browser_name = os.getenv('selene.browser_name', DEFAULT_BROWSER)
+    browser.config.hold_browser_open = (
+            os.getenv('selene.hold_browser_open', 'false').lower() == 'true'
     )
-    browser = Browser(Config(driver))
+    browser.config.timeout = float(os.getenv('selene.timeout', SELENE_TIMEOUT))
 
-    yield browser
 
-    attachments.add_html(browser)
-    attachments.add_screenshot(browser)
-    attachments.add_logs(browser)
-    attachments.add_video(browser)
-    browser.quit()
+@allure.step('Open page: {path}')
+def open_page(path: str):
+    browser.open(path)
+    time.sleep(1)
+    (
+        browser.all('[id^=google_ads][id$=container__],[id$=Advertisement]')
+        .with_(timeout=BASE_BROWSER_TIMEOUT)
+        .should(have.size_greater_than_or_equal(3))
+        .perform(command.js.remove)
+    )
